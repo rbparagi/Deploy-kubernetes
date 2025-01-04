@@ -1,0 +1,10 @@
+Help me to set up the networking first by creating separate VPC, 
+2 public subnets, 2 private subnets attache internet gateway to public subnets with route table associations. Also create another route table which is associate private subnets 
+
+
+.
+├── main.tf         # Main Terraform configuration
+├── variables.tf    # Input variables
+├── outputs.tf      # Outputs
+├── providers.tf    # AWS provider configuration
+└── vpc.tf          # Networking setup

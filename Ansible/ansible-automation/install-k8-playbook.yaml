@@ -1,0 +1,164 @@
+---
+- name: Kubernetes Setup on Rocky Linux 9
+  hosts: k8s-master
+  become: true
+  become_user: root
+
+  vars:
+    containerd_config_path: /etc/containerd/config.toml
+    crictl_version: "v1.30.0"
+    k8s_version: "1.30"
+
+  tasks:
+
+    # -----------------------
+    # Step 1: System Prerequisites
+    # -----------------------
+    - name: Update system packages
+      dnf:
+        name: "*"
+        state: latest
+
+    - name: Install required packages
+      dnf:
+        name:
+          - yum-utils
+          - device-mapper-persistent-data
+          - lvm2
+          - epel-release
+        state: present
+
+    - name: Enable CRB repository
+      command: dnf config-manager --set-enabled crb
+
+    - name: Disable Swap
+      shell: |
+        swapoff -a
+        sed -i '/ swap / s/^/#/' /etc/fstab
+
+    - name: Set SELinux to permissive mode
+      shell: |
+        setenforce 0
+        sed -i 's/^SELINUX=enforcing$/SELINUX=permissive/' /etc/selinux/config
+
+    # -----------------------
+    # Step 2: Kernel & Networking Setup
+    # -----------------------
+    - name: Enable kernel modules
+      shell: |
+        modprobe overlay
+        modprobe br_netfilter
+
+    - name: Configure sysctl for Kubernetes
+      copy:
+        dest: /etc/sysctl.d/kubernetes.conf
+        content: |
+          net.bridge.bridge-nf-call-ip6tables = 1
+          net.bridge.bridge-nf-call-iptables = 1
+          net.ipv4.ip_forward = 1
+
+    - name: Apply sysctl settings
+      command: sysctl --system
+
+    # -----------------------
+    # Step 3: Install containerd
+    # -----------------------
+    - name: Add Docker repository
+      command: dnf config-manager --add-repo https://download.docker.com/linux/centos/docker-ce.repo
+
+    - name: Install containerd
+      dnf:
+        name: containerd.io
+        state: present
+
+    - name: Create containerd configuration
+      shell: |
+        mkdir -p /etc/containerd
+        containerd config default | tee /etc/containerd/config.toml
+
+    - name: Set systemd cgroup driver for containerd
+      lineinfile:
+        path: "{{ containerd_config_path }}"
+        regexp: '^SystemdCgroup = false'
+        line: 'SystemdCgroup = true'
+
+    - name: Restart and enable containerd
+      systemd:
+        name: containerd
+        state: restarted
+        enabled: true
+
+    # -----------------------
+    # Step 4: Install crictl
+    # -----------------------
+    - name: Download crictl
+      get_url:
+        url: "https://github.com/kubernetes-sigs/cri-tools/releases/download/{{ crictl_version }}/crictl-{{ crictl_version }}-linux-amd64.tar.gz"
+        dest: /tmp/crictl.tar.gz
+
+    - name: Extract and install crictl
+      shell: |
+        tar -xvf /tmp/crictl.tar.gz -C /usr/local/bin
+        chmod +x /usr/local/bin/crictl
+        rm -f /tmp/crictl.tar.gz
+
+    - name: Configure crictl
+      copy:
+        dest: /etc/crictl.yaml
+        content: |
+          runtime-endpoint: unix:///run/containerd/containerd.sock
+          image-endpoint: unix:///run/containerd/containerd.sock
+          timeout: 10
+          debug: false
+
+    # -----------------------
+    # Step 5: Install Kubernetes Components
+    # -----------------------
+    - name: Add Kubernetes repository
+      copy:
+        dest: /etc/yum.repos.d/kubernetes.repo
+        content: |
+          [kubernetes]
+          name=Kubernetes
+          baseurl=https://pkgs.k8s.io/core:/stable:/v{{ k8s_version }}/rpm/
+          enabled=1
+          gpgcheck=1
+          repo_gpgcheck=1
+          gpgkey=https://pkgs.k8s.io/core:/stable:/v{{ k8s_version }}/rpm/repodata/repomd.xml.key
+
+    - name: Install kubeadm, kubelet, kubectl
+      dnf:
+        name:
+          - kubelet
+          - kubeadm
+          - kubectl
+        state: present
+
+    - name: Enable kubelet service
+      systemd:
+        name: kubelet
+        enabled: true
+
+    # -----------------------
+    # Step 6: Verify Installations
+    # -----------------------
+    - name: Verify containerd status
+      systemd:
+        name: containerd
+        state: started
+        enabled: true
+
+   
+    - name: Check crictl runtime info
+      command: crictl info
+      register: crictl_output
+
+    - debug:
+        var: crictl_output.stdout
+
+    - name: Check kubelet version
+      command: kubelet --version
+      register: kubelet_output
+
+    - debug:
+        var: kubelet_output.stdout
