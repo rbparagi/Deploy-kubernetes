@@ -1,0 +1,16 @@
+Problem 1: Deploy an EC2 Instance with User Data Script
+Scenario:
+
+    Create an EC2 instance in us-east-1.
+    Use a User Data script to install Apache HTTP Server on launch.
+    Ensure the instance is tagged with Environment = Development.
+
+Key Concepts:
+
+    EC2 Resource (aws_instance)
+    User Data Script
+    Tags
+
+Expected Output:
+
+    EC2 instance created with Apache running.
