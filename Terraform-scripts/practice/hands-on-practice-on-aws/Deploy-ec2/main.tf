@@ -6,6 +6,7 @@ resource "aws_instance" "web-instance" {
     subnet_id = var.subnet_ids[0]
     #security_groups = var.security_group_ids[0]
     vpc_security_group_ids = var.security_group_ids
+    count = var.instance_count
 
     user_data = <<-EOF
               #!/bin/bash
@@ -13,11 +14,11 @@ resource "aws_instance" "web-instance" {
               sudo yum install -y httpd
               sudo systemctl start httpd
               sudo systemctl enable httpd
-              echo "<h1>Welcome to Apache Server - Provisioned by Terraform</h1>" > /var/www/html/index.html
+              echo "<h1>Welcome to Apache Server - Provisioned by Terraform `hostname`</h1>" > /var/www/html/index.html
               EOF
 
     tags = {
-      "Name" = "AWS-Web-Instance"
+      "Name" = "AWS-Web-Instance-${count.index + 1}"
       "Environment" = "Developmemt"
     }
 
