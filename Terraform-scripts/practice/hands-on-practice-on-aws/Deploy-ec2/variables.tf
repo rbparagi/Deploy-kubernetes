@@ -41,7 +41,7 @@ variable "security_group_ids" {
 }
 
 variable "instance_count" {
-  default = 2
+  default = 1
   type = number
   description = "Number of instances to be created"
   
