@@ -1,3 +1,7 @@
+Let's go deeper into each prerequisite in a simple, clear, and beginner-friendly way.
+
+I'll explain using relatable analogies to help you easily understand the concepts.
+
 ✅ 1. Operating System (OS)
 What is an OS?
 The Operating System (OS) is the main software on your computer or server that manages hardware, software, and applications.
