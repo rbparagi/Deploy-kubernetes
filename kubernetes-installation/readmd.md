@@ -1,3 +1,68 @@
+/**
+ * ## Kubernetes Installation Prerequisites
+ *
+ * This documentation provides a beginner-friendly explanation of the prerequisites required for setting up Kubernetes.
+ * Each prerequisite is explained with relatable analogies to simplify understanding.
+ *
+ * ### Prerequisites Overview:
+ *
+ * 1. **Operating System (OS):**
+ *    - The foundational software managing hardware and applications.
+ *    - Kubernetes relies on Linux-specific features.
+ *    - Recommended OS: Ubuntu, CentOS, Debian, Amazon Linux.
+ *    - **Analogy:** OS is like your home's structure; Kubernetes fits Linux like specific furniture fits certain house designs.
+ *
+ * 2. **Swap Space:**
+ *    - Reserved disk space used when RAM is full.
+ *    - Swap should be disabled for predictable Kubernetes performance.
+ *    - **Analogy:** RAM is like a kitchen countertop; swap is like a distant storeroom—slower and inconvenient.
+ *
+ * 3. **Hostname Configuration:**
+ *    - Unique name for identifying a server in a network.
+ *    - Kubernetes uses hostnames for internal communication.
+ *    - **Analogy:** Hostnames are like house numbers in a locality.
+ *
+ * 4. **Time Synchronization (NTP):**
+ *    - Ensures all servers have synchronized time.
+ *    - Critical for logs, coordination, and security certificates.
+ *    - **Analogy:** Synchronizing clocks to catch a train or attend a meeting on time.
+ *
+ * 5. **Firewall Configuration:**
+ *    - Monitors and controls network traffic.
+ *    - Adjust firewall rules to allow Kubernetes communication.
+ *    - **Analogy:** Firewall settings are like a home's security gate, allowing only trusted visitors.
+ *
+ * 6. **SELinux/AppArmor:**
+ *    - Linux security modules restricting unauthorized access.
+ *    - Adjust configurations to avoid blocking Kubernetes processes.
+ *    - **Analogy:** Security guards in an apartment—too strict guards may block valid residents.
+ *
+ * 7. **Container Runtime:**
+ *    - Software responsible for running containers (e.g., containerd, CRI-O, Docker).
+ *    - Kubernetes manages containers but relies on a runtime to execute them.
+ *    - **Analogy:** Kubernetes is the restaurant manager; the runtime is the chef preparing meals.
+ *
+ * 8. **Kernel Modules:**
+ *    - Additional software components for Linux kernel functionality.
+ *    - Required modules: `overlay`, `br_netfilter`.
+ *    - **Analogy:** Kernel modules are like extra kitchen appliances providing additional functionality.
+ *
+ * 9. **Kernel Parameters (sysctl):**
+ *    - Settings to adjust Linux kernel behavior.
+ *    - Key parameters: `net.bridge.bridge-nf-call-iptables`, `net.ipv4.ip_forward`.
+ *    - **Analogy:** Adjusting TV settings for perfect clarity ensures smooth Kubernetes communication.
+ *
+ * 10. **Linux Kernel Version:**
+ *     - The core of the OS managing resources.
+ *     - Kubernetes requires newer kernel versions (4.x or newer).
+ *     - **Analogy:** Old kernels are like outdated smartphone software—modern features may not work.
+ *
+ * 11. **cgroups:**
+ *     - Control groups for limiting and monitoring resource usage.
+ *     - Kubernetes uses cgroups to isolate and allocate resources for containers.
+ *     - **Analogy:** cgroups are like office partitions, ensuring proper resource allocation.
+ */
+
 Let's go deeper into each prerequisite in a simple, clear, and beginner-friendly way.
 
 I'll explain using relatable analogies to help you easily understand the concepts.
